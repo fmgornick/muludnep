@@ -1,3 +1,6 @@
--std=c17
--Ilibs/mujoco/mujoco.framework/Versions/Current
+-std=c++17
+-Ilibs/glad/include
 -Ilibs/glfw/3.4/include
+-Ilibs/imgui
+-Ilibs/imgui/backends
+-Ilibs/mujoco/mujoco.framework/Versions/Current

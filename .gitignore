@@ -1,2 +1,4 @@
 *.dSYM
+imgui.ini
+MUJOCO_LOG.TXT
 muludnep
