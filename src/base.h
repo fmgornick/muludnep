@@ -7,6 +7,7 @@
 
 #define WIDTH 1600
 #define HEIGHT 900
+#define PANEL_WIDTH 300.0f
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -51,6 +52,7 @@ typedef struct world {
     // GLFW objects
     i32 width;
     i32 height;
+    f32 panel_width;
     GLFWwindow *window;
 
     // mouse interaction
@@ -59,9 +61,4 @@ typedef struct world {
     bool button_right;
     f64 lastx;
     f64 lasty;
-
-    // void key_callback(GLFWwindow *window, int key, int scancode, int act, int mods);
-    // void mouse_button_callback(GLFWwindow *window, int button, int act, int mods);
-    // void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
-    // void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 } world;

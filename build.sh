@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"
 dir=$PWD
 
-clang++ -std=c++17 -O3 -Wall \
+clang++ -std=c++17 -g -Wall \
     -F$dir/libs/mujoco \
     -I$dir/libs/glfw/3.4/include \
     -I$dir/libs/imgui \

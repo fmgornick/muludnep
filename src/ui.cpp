@@ -8,6 +8,10 @@ void init_ui(world *w);
 void update_state(world *w);
 void destroy_ui(world *w);
 void randomize_pole_orientation(world *w);
+void key_callback(GLFWwindow *window, int key, int scancode, int act, int mods);
+void mouse_button_callback(GLFWwindow *window, int button, int act, int mods);
+void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 void
 init_ui(world *w)
@@ -18,14 +22,11 @@ init_ui(world *w)
     // glfw window
     w->width = WIDTH;
     w->height = HEIGHT;
+    w->panel_width = PANEL_WIDTH;
     w->window = glfwCreateWindow(w->width, w->height, "Inverted Pendulum", NULL, NULL);
     glfwMakeContextCurrent(w->window);
+    glfwSetWindowUserPointer(w->window, w);
     glfwSwapInterval(1);
-
-    const GLubyte *version = glGetString(GL_VERSION);
-    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-    printf("OpenGL Version: %s\n", version);
-    printf("GLSL Version: %s\n", glslVersion);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -41,10 +42,10 @@ init_ui(world *w)
     ImGui_ImplOpenGL3_Init("#version 120");
 
     // callbacks
-    // glfwSetKeyCallback(w->window, w->key_callback);
-    // glfwSetMouseButtonCallback(w->window, w->mouse_button_callback);
-    // glfwSetCursorPosCallback(w->window, w->cursor_pos_callback);
-    // glfwSetScrollCallback(w->window, w->scroll_callback);
+    glfwSetKeyCallback(w->window, key_callback);
+    glfwSetMouseButtonCallback(w->window, mouse_button_callback);
+    glfwSetCursorPosCallback(w->window, cursor_pos_callback);
+    glfwSetScrollCallback(w->window, scroll_callback);
 
     // mujoco data+model
     char error[1000];
@@ -119,104 +120,168 @@ randomize_pole_orientation(world *w)
     w->data->qpos[w->hinge_y_id] = ((f64)rand() / RAND_MAX * 2.0 - 1.0) * max_angle;
 }
 
-// void
-// world::key_callback(GLFWwindow *window, int key, int scancode, int act, int mods)
-// {
-//     if (act == GLFW_PRESS && key == GLFW_KEY_W)
-//     {
-//         data->xfrc_applied[6 * pole_id + 1] = 5.0f;
-//     }
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_A)
-//     {
-//         data->xfrc_applied[6 * pole_id + 0] = -5.0f;
-//     }
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_S)
-//     {
-//         data->xfrc_applied[6 * pole_id + 1] = -5.0f;
-//     }
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_D)
-//     {
-//         data->xfrc_applied[6 * pole_id + 0] = 5.0f;
-//     }
-//     // backspace: reset simulation
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_BACKSPACE)
-//     {
-//         mj_resetData(model, data);
-//         randomize_pole_orientation(this);
-//         mj_forward(model, data);
-//     }
-//     // escape: close window
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
-//     {
-//         glfwSetWindowShouldClose(window, GLFW_TRUE);
-//     }
-//     // q: close window
-//     else if (act == GLFW_PRESS && key == GLFW_KEY_Q)
-//     {
-//         glfwSetWindowShouldClose(window, GLFW_TRUE);
-//     }
-// }
-//
-// void
-// world::mouse_button_callback(GLFWwindow *window, int button, int act, int mods)
-// {
-//     // update button state
-//     button_left = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
-//     button_middle = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS);
-//     button_right = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
-// }
-//
-// void
-// world::cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
-// {
-//     // no buttons down: nothing to do
-//     if (!button_left && !button_middle && !button_right)
-//     {
-//         return;
-//     }
-//
-//     // compute mouse displacement, save
-//     double dx = xpos - lastx;
-//     double dy = ypos - lasty;
-//     lastx = xpos;
-//     lasty = ypos;
-//
-//     // get current window size
-//     int width, height;
-//     glfwGetWindowSize(window, &width, &height);
-//
-//     // get shift key state
-//     bool mod_shift = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
-//
-//     // determine action based on mouse button
-//     mjtMouse action;
-//     if (button_right)
-//     {
-//         action = mod_shift ? mjMOUSE_MOVE_H : mjMOUSE_MOVE_V;
-//     }
-//     else if (button_left)
-//     {
-//         action = mod_shift ? mjMOUSE_ROTATE_H : mjMOUSE_ROTATE_V;
-//     }
-//     else
-//     {
-//         action = mjMOUSE_ZOOM;
-//     }
-//
-//     // move camera
-//     mjv_moveCamera(model, action, dx / height, dy / height, &scene, &cam);
-// }
-//
-// void
-// world::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
-// {
-//     if ((cam.distance < 1.0 && yoffset < 0.0) || (cam.distance > 100.0 && yoffset > 0.0))
-//     {
-//         return;
-//     }
-//     else
-//     {
-//         // emulate vertical mouse motion = 5% of window height
-//         mjv_moveCamera(model, mjMOUSE_ZOOM, 0, -0.05 * yoffset, &scene, &cam);
-//     }
-// }
+void
+key_callback(GLFWwindow *window, int key, int scancode, int act, int mods)
+{
+    world *w = (world *)glfwGetWindowUserPointer(window);
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, act, mods);
+    if (act == GLFW_PRESS && key == GLFW_KEY_W)
+    {
+        w->data->xfrc_applied[6 * w->pole_id + 1] = 5.0f;
+    }
+    else if (act == GLFW_PRESS && key == GLFW_KEY_A)
+    {
+        w->data->xfrc_applied[6 * w->pole_id + 0] = -5.0f;
+    }
+    else if (act == GLFW_PRESS && key == GLFW_KEY_S)
+    {
+        w->data->xfrc_applied[6 * w->pole_id + 1] = -5.0f;
+    }
+    else if (act == GLFW_PRESS && key == GLFW_KEY_D)
+    {
+        w->data->xfrc_applied[6 * w->pole_id + 0] = 5.0f;
+    }
+    // backspace: reset simulation
+    else if (act == GLFW_PRESS && key == GLFW_KEY_BACKSPACE)
+    {
+        mj_resetData(w->model, w->data);
+        randomize_pole_orientation(w);
+        mj_forward(w->model, w->data);
+    }
+    // escape: close window
+    else if (act == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+    // q: close window
+    else if (act == GLFW_PRESS && key == GLFW_KEY_Q)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+}
+
+void
+mouse_button_callback(GLFWwindow *window, int button, int act, int mods)
+{
+    world *w = (world *)glfwGetWindowUserPointer(window);
+    if (ImGui::GetIO().MousePos.x < w->panel_width)
+    {
+        ImGui_ImplGlfw_MouseButtonCallback(window, button, act, mods);
+    }
+    else
+    {
+        // update button state
+        w->button_left = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
+        w->button_middle = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS);
+        w->button_right = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
+
+        f64 xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        w->lastx = xpos;
+        w->lasty = ypos;
+    }
+}
+
+void
+cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    world *w = (world *)glfwGetWindowUserPointer(window);
+    ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+    // no buttons down: nothing to do
+    if (!w->button_left && !w->button_middle && !w->button_right)
+    {
+        return;
+    }
+
+    // compute mouse displacement, save
+    double dx = xpos - w->lastx;
+    double dy = ypos - w->lasty;
+    w->lastx = xpos;
+    w->lasty = ypos;
+
+    // get current window size
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    // get shift key state
+    bool mod_shift = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
+
+    // determine action based on mouse button
+    mjtMouse action;
+    if (w->button_right)
+    {
+        action = mod_shift ? mjMOUSE_MOVE_H : mjMOUSE_MOVE_V;
+    }
+    else if (w->button_left)
+    {
+        action = mod_shift ? mjMOUSE_ROTATE_H : mjMOUSE_ROTATE_V;
+    }
+    else
+    {
+        action = mjMOUSE_ZOOM;
+    }
+
+    // move camera
+    mjv_moveCamera(w->model, action, dx / height, dy / height, &w->scene, &w->cam);
+}
+
+void
+scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    world *w = (world *)glfwGetWindowUserPointer(window);
+    if (ImGui::GetIO().MousePos.x < w->panel_width)
+    {
+        ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+    }
+    else
+    {
+        if ((w->cam.distance < 1.0 && yoffset < 0.0) || (w->cam.distance > 100.0 && yoffset > 0.0))
+        {
+            return;
+        }
+        else
+        {
+            // emulate vertical mouse motion = 5% of window height
+            mjv_moveCamera(w->model, mjMOUSE_ZOOM, 0, -0.05 * yoffset, &w->scene, &w->cam);
+        }
+    }
+}
+
+void
+draw_sim(world *w)
+{
+    mjrRect viewport = { 0, 0, 0, 0 };
+    glfwGetFramebufferSize(w->window, &viewport.width, &viewport.height);
+
+    mj_step(w->model, w->data);
+    update_state(w);
+    mjv_updateScene(w->model, w->data, &w->opt, NULL, &w->cam, mjCAT_ALL, &w->scene);
+    mjr_render(viewport, &w->scene, &w->context);
+}
+
+void
+draw_panel(world *w)
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(w->panel_width, w->height));
+
+    ImGui::Begin("Scene", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    w->panel_width = ImGui::GetWindowWidth();
+
+    if (ImGui::CollapsingHeader("State"))
+    {
+        ImGui::Text("(pos, angle, vel, wvel)");
+        ImGui::Separator();
+        ImGui::Text("X: (%.3f, %.3f, %.3f, %.3f)", w->state_x[0], w->state_x[1], w->state_x[2], w->state_x[3]);
+        ImGui::Text("Y: (%.3f, %.3f, %.3f, %.3f)", w->state_y[0], w->state_y[1], w->state_y[2], w->state_y[3]);
+    }
+
+    ImGui::End();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
