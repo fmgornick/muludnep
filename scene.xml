@@ -1,0 +1,41 @@
+<mujoco model="cartpole">
+    <compiler angle="radian"/>
+    <option timestep="0.01"/>
+
+    <asset>
+        <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+        <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+    </asset>
+
+    <worldbody>
+        <!-- ground -->
+        <geom name="ground" size="0 0 0.05" type="plane" material="groundplane"/>
+
+        <!-- platform + pole -->
+        <body name="platform" pos="0 0 0.1">
+            <joint name="platform_x" type="slide" axis="1 0 0"/>
+            <joint name="platform_y" type="slide" axis="0 1 0"/>
+            <geom name="platform_geom" type="cylinder" size="0.3 0.1" rgba="0.5 0.6 0.8 1"/>
+
+            <body name="pole" pos="0 0 0.1">
+                <joint name="hinge_x" type="hinge" axis="1 0 0"/>
+                <joint name="hinge_y" type="hinge" axis="0 1 0"/>
+                <geom name="pole_geom" type="capsule" fromto="0 0 0 0 0 1" size="0.05" rgba="0.8 0.6 0.5 1"/>
+            </body>
+
+            <!-- <site name="lidar_xz_site" pos="0 0 0.5" size="0.01"/> -->
+            <!-- <site name="lidar_yz_site" pos="0 0 0.5" size="0.01"/> -->
+        </body>
+        </worldbody>
+
+    <!-- <sensor> -->
+    <!--     <rangefinder name="lidar_xz" site="lidar_xz_site" noise="0.0"/> -->
+    <!--     <rangefinder name="lidar_yz" site="lidar_yz_site" noise="0.0"/> -->
+    <!-- </sensor> -->
+
+    <actuator>
+        <motor joint="platform_x" ctrlrange="-10 10"/>
+        <motor joint="platform_y" ctrlrange="-10 10"/>
+    </actuator>
+</mujoco>

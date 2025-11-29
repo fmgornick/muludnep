@@ -1,3 +1,4 @@
+#include "math.cpp"
 #include "ui.cpp"
 #include <unistd.h>
 
@@ -6,24 +7,18 @@ main()
 {
     world w = { 0 };
     init_ui(&w);
-    // randomize_pole_orientation(&w);
-
-    // w.data->ctrl[w.joint_x_id] = 5.0;
-    // w.data->ctrl[w.joint_y_id] = 5.0;
+    init_math(&w);
 
     while (!glfwWindowShouldClose(w.window))
     {
+        control(&w);
         draw_sim(&w);
         draw_panel(&w);
-
         glfwSwapBuffers(w.window);
         glfwPollEvents();
-        // usleep(10000);
+        usleep(10000);
     }
 
-    // Cleanup
     destroy_ui(&w);
-    glfwTerminate();
-
     return 0;
 }
