@@ -1,11 +1,10 @@
 #include "base.hpp"
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 #include <string.h>
 
 void init_ui(world *w);
-void update_state(world *w);
 void destroy_ui(world *w);
 void reset_pole_orientation(world *w);
 void resize_callback(GLFWwindow *window, int width, int height);
@@ -21,9 +20,6 @@ init_ui(world *w)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     // glfw window
-    w->width = WIDTH;
-    w->height = HEIGHT;
-    w->panel_width = PANEL_WIDTH;
     w->window = glfwCreateWindow(w->width, w->height, "Inverted Pendulum", NULL, NULL);
     glfwMakeContextCurrent(w->window);
     glfwSetWindowUserPointer(w->window, w);
@@ -64,59 +60,6 @@ init_ui(world *w)
     mjr_makeContext(w->model, &w->context, mjFONTSCALE_150);
 
     reset_pole_orientation(w);
-    update_state(w);
-}
-
-void
-update_state(world *w)
-{
-    // // x state vector
-    // w->state_x[0] = w->data->xpos[3 * w->pole_id + 0];
-    // w->state_x[1] = w->data->qpos[w->hinge_x_id];
-    // w->state_x[2] = w->data->cvel[6 * w->pole_id + 3];
-    // w->state_x[3] = w->data->cvel[6 * w->pole_id + 0];
-    //
-    // // y state vector
-    // w->state_y[0] = w->data->xpos[3 * w->pole_id + 1];
-    // w->state_y[1] = w->data->qpos[w->hinge_y_id];
-    // w->state_y[2] = w->data->cvel[6 * w->pole_id + 4];
-    // w->state_y[3] = w->data->cvel[6 * w->pole_id + 1];
-    //
-    // // tip   base   rotation  initial tip orientation
-    // // x     px     r0 r1 r2  0
-    // // y  =  py  +  r3 r4 r5  0
-    // // z     pz     r6 r7 r8  1
-    // w->tip[0] = w->data->xpos[3 * w->pole_id + 0] + w->data->xmat[9 * w->pole_id + 2];
-    // w->tip[1] = w->data->xpos[3 * w->pole_id + 1] + w->data->xmat[9 * w->pole_id + 5];
-    // w->tip[2] = w->data->xpos[3 * w->pole_id + 2] + w->data->xmat[9 * w->pole_id + 8];
-    //
-    // // clear forcces applied in frame;
-    // f64 control_x = -(w->K[0] * w->state_x[0] + w->K[1] * w->state_x[1] + w->K[2] * w->state_x[2] + w->K[3] * w->state_x[3]);
-    // f64 control_y = -(w->K[0] * w->state_y[0] + w->K[1] * w->state_y[1] + w->K[2] * w->state_y[2] + w->K[3] * w->state_y[3]);
-    //
-    // w->data->xfrc_applied[6 * w->joint_x_id] = control_x;
-    // w->data->xfrc_applied[6 * w->joint_y_id + 1] = control_y;
-
-    // memset(w->data->xfrc_applied, 0, sizeof(f64) * 6 * w->model->nbody);
-    //
-    // int j_platform_x = mj_name2id(w->model, mjOBJ_JOINT, "platform_x");
-    // int j_platform_y = mj_name2id(w->model, mjOBJ_JOINT, "platform_y");
-    // int j_hinge_x = mj_name2id(w->model, mjOBJ_JOINT, "hinge_x");
-    // int j_hinge_y = mj_name2id(w->model, mjOBJ_JOINT, "hinge_y");
-    //
-    // int platform_x_qpos_id = w->model->jnt_qposadr[j_platform_x];
-    // int platform_y_qpos_id = w->model->jnt_qposadr[j_platform_y];
-    // int hinge_x_qpos_id = w->model->jnt_qposadr[j_hinge_x];
-    // int hinge_y_qpos_id = w->model->jnt_qposadr[j_hinge_y];
-    //
-    // int platform_x_qvel_id = w->model->jnt_dofadr[j_platform_x];
-    // int platform_y_qvel_id = w->model->jnt_dofadr[j_platform_y];
-    // int hinge_x_qvel_id = w->model->jnt_dofadr[j_hinge_x];
-    // int hinge_y_qvel_id = w->model->jnt_dofadr[j_hinge_y];
-    //
-    // VectorX x0(nstate);
-    // read_state_from_sim(d, platform_x_qpos_id, platform_y_qpos_id, hinge_x_qpos_id, hinge_y_qpos_id, platform_x_qvel_id, platform_y_qvel_id, hinge_x_qvel_id,
-    //                     hinge_y_qvel_id, x0);
 }
 
 void
@@ -163,19 +106,19 @@ key_callback(GLFWwindow *window, int key, int scancode, int act, int mods)
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, act, mods);
     if (act == GLFW_PRESS && key == GLFW_KEY_W)
     {
-        w->data->qfrc_applied[w->hinge_y_qpos_id] = 5.0f;
+        w->data->qfrc_applied[w->hinge_x_qpos_id] = -5.0f;
     }
     else if (act == GLFW_PRESS && key == GLFW_KEY_A)
     {
-        w->data->qfrc_applied[w->hinge_x_qpos_id] = -5.0f;
+        w->data->qfrc_applied[w->hinge_y_qpos_id] = -5.0f;
     }
     else if (act == GLFW_PRESS && key == GLFW_KEY_S)
     {
-        w->data->qfrc_applied[w->hinge_y_qpos_id] = -5.0f;
+        w->data->qfrc_applied[w->hinge_x_qpos_id] = 5.0f;
     }
     else if (act == GLFW_PRESS && key == GLFW_KEY_D)
     {
-        w->data->qfrc_applied[w->hinge_x_qpos_id] = 5.0f;
+        w->data->qfrc_applied[w->hinge_y_qpos_id] = 5.0f;
     }
     // backspace: reset simulation
     if (act == GLFW_PRESS && key == GLFW_KEY_BACKSPACE)
@@ -292,6 +235,12 @@ draw_sim(world *w)
     mj_step(w->model, w->data);
     mjv_updateScene(w->model, w->data, &w->opt, NULL, &w->cam, mjCAT_ALL, &w->scene);
     mjr_render(viewport, &w->scene, &w->context);
+
+    if (w->focus_robot)
+    {
+        w->cam.lookat[0] = w->data->qpos[w->platform_x_qpos_id];
+        w->cam.lookat[1] = w->data->qpos[w->platform_y_qpos_id];
+    }
 }
 
 void
@@ -305,16 +254,70 @@ draw_panel(world *w)
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(w->panel_width, w->height));
 
-    ImGui::Begin("Scene", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    ImGui::Begin("Inverted Pendulum Scene", NULL,
+                 ImGuiWindowFlags_NoMove |         //
+                     ImGuiWindowFlags_NoCollapse | //
+                     ImGuiWindowFlags_NoBringToFrontOnFocus);
     w->panel_width = ImGui::GetWindowWidth();
 
-    if (ImGui::CollapsingHeader("State", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::CollapsingHeader("LQR Controller", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Text("(pos, angle, vel, wvel)");
+        ImGui::Text("Set LQR Penalties");
         ImGui::Separator();
-        ImGui::Text("X: (%.3f, %.3f, %.3f, %.3f)", w->x(0), w->x(2), w->x(4), w->x(6));
-        ImGui::Text("Y: (%.3f, %.3f, %.3f, %.3f)", w->x(1), w->x(3), w->x(5), w->x(7));
-        ImGui::NewLine();
+        bool updating = false;
+        if (ImGui::SliderFloat("Position penalty", &w->q_pos_penalty, 0.0f, 1000.0f)) updating = true;
+        if (ImGui::SliderFloat("Velocity penalty", &w->q_vel_penalty, 0.0f, 1000.0f)) updating = true;
+        if (ImGui::SliderFloat("Angle penalty", &w->q_angle_penalty, 0.0f, 1000.0f)) updating = true;
+        if (ImGui::SliderFloat("Angular velocity penalty", &w->q_angvel_penalty, 0.0f, 1000.0f)) updating = true;
+        if (updating)
+        {
+            w->q_updating = true;
+            w->Q(0, 0) = w->q_pos_penalty;
+            w->Q(1, 1) = w->q_angle_penalty;
+            w->Q(2, 2) = w->q_vel_penalty;
+            w->Q(3, 3) = w->q_angvel_penalty;
+        }
+        else if (w->q_updating && !ImGui::IsMouseDown(0))
+        {
+            w->q_updating = false;
+            w->q_updated = true;
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Penalty Matrix Q");
+        ImGui::Text("%8.3f %8.3f %8.3f %8.3f", w->Q(0, 0), w->Q(0, 1), w->Q(0, 2), w->Q(0, 3));
+        ImGui::Text("%8.3f %8.3f %8.3f %8.3f", w->Q(1, 0), w->Q(1, 1), w->Q(1, 2), w->Q(1, 3));
+        ImGui::Text("%8.3f %8.3f %8.3f %8.3f", w->Q(2, 0), w->Q(2, 1), w->Q(2, 2), w->Q(2, 3));
+        ImGui::Text("%8.3f %8.3f %8.3f %8.3f", w->Q(3, 0), w->Q(3, 1), w->Q(3, 2), w->Q(3, 3));
+        ImGui::Separator();
+        ImGui::Text("LQR Gain Matrix K");
+        ImGui::Text("%8.3f %8.3f %8.3f %8.3f", w->K(0, 0), w->K(0, 1), w->K(0, 2), w->K(0, 3));
+        if (ImGui::Button("Reset Q"))
+        {
+            w->q_pos_penalty = 10.0f;
+            w->q_angle_penalty = 1000.0f;
+            w->q_vel_penalty = 1.0f;
+            w->q_angvel_penalty = 100.0f;
+            w->Q(0, 0) = w->q_pos_penalty;
+            w->Q(1, 1) = w->q_angle_penalty;
+            w->Q(2, 2) = w->q_vel_penalty;
+            w->Q(3, 3) = w->q_angvel_penalty;
+            w->q_updated = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Set K = 0"))
+        {
+            w->K.setZero();
+        }
+    }
+
+    if (ImGui::CollapsingHeader("State & Control", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text("Position         : (%8.3f m,     %8.3f m    )", w->x(0), w->y(0));
+        ImGui::Text("Angle            : (%8.3f rad,   %8.3f rad  )", w->x(1), w->y(1));
+        ImGui::Text("Velocity         : (%8.3f m/s,   %8.3f m/s  )", w->x(2), w->y(2));
+        ImGui::Text("Angular Velocity : (%8.3f rad/s, %8.3f rad/s)", w->x(3), w->y(3));
+        ImGui::Text("Control Input    : (%8.3f N,     %8.3f N    )", w->ux, w->uy);
     }
 
     if (ImGui::CollapsingHeader("Pole Angle", ImGuiTreeNodeFlags_DefaultOpen))
@@ -338,48 +341,11 @@ draw_panel(world *w)
         ImGui::NewLine();
     }
 
-    i32 id = 0;
-    if (ImGui::CollapsingHeader("Q", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::Button("Reset Simulation"))
     {
-        for (i32 i = 0; i < w->Q.rows(); i++)
-        {
-            for (i32 j = 0; j < w->Q.cols(); j++)
-            {
-                ImGui::PushID(id++);         // Unique ID for each element
-                ImGui::SetNextItemWidth(50); // Optional: control width of input field
-                ImGui::InputDouble("##matrix_element", &w->Q(i, j), 0.0f, 0.0f, "%.2f");
-                ImGui::PopID();
-                if (j < w->Q.cols() - 1)
-                { // Don't add SameLine after the last element in a row
-                    ImGui::SameLine();
-                }
-            }
-        }
-        ImGui::NewLine();
+        mj_resetData(w->model, w->data);
     }
-
-    if (ImGui::CollapsingHeader("K", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        for (i32 i = 0; i < w->K.rows(); i++)
-        {
-            for (i32 j = 0; j < w->K.cols(); j++)
-            {
-                ImGui::PushID(id++);         // Unique ID for each element
-                ImGui::SetNextItemWidth(50); // Optional: control width of input field
-                ImGui::InputDouble("##matrix_element", &w->K(i, j), 0.0f, 0.0f, "%.2f");
-                ImGui::PopID();
-                if (j < w->K.cols() - 1)
-                { // Don't add SameLine after the last element in a row
-                    ImGui::SameLine();
-                }
-            }
-        }
-        ImGui::NewLine();
-    }
-
-    ImGui::Separator();
-    ImGui::Text("X control: %lf", w->data->ctrl[0]);
-    ImGui::Text("Y control: %lf", w->data->ctrl[1]);
+    ImGui::Checkbox("Focus Camera on Robot", &w->focus_robot);
 
     ImGui::End();
     ImGui::Render();

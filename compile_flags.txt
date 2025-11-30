@@ -1,7 +1,2 @@
 -std=c++17
--Ilibs/eigen
--Ilibs/glad/include
--Ilibs/glfw/3.4/include
--Ilibs/imgui
--Ilibs/imgui/backends
--Ilibs/mujoco/mujoco.framework/Versions/Current
+-Iinc

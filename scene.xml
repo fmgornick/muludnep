@@ -35,7 +35,7 @@
     <!-- </sensor> -->
 
     <actuator>
-        <motor joint="platform_x" ctrlrange="-10 10"/>
-        <motor joint="platform_y" ctrlrange="-10 10"/>
+        <motor joint="platform_x" ctrlrange="-10000 10000"/>
+        <motor joint="platform_y" ctrlrange="-10000 10000"/>
     </actuator>
 </mujoco>

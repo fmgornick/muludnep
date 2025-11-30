@@ -8,9 +8,9 @@
 
 #define WIDTH 1600
 #define HEIGHT 900
-#define PANEL_WIDTH 300.0f
-#define nstate 8
-#define nact 2
+#define PANEL_WIDTH 500.0f
+#define nstate 4
+#define nact 1
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -36,10 +36,10 @@ typedef struct world {
     // object ids
     i32 platform_x_qpos_id;
     i32 platform_y_qpos_id;
-    i32 hinge_x_qpos_id;
-    i32 hinge_y_qpos_id;
     i32 platform_x_qvel_id;
     i32 platform_y_qvel_id;
+    i32 hinge_x_qpos_id;
+    i32 hinge_y_qpos_id;
     i32 hinge_x_qvel_id;
     i32 hinge_y_qvel_id;
 
@@ -49,12 +49,14 @@ typedef struct world {
     Eigen::Matrix<f64, nstate, nstate> Q;
     Eigen::Matrix<f64, nact, nstate> K;
     Eigen::Matrix<f64, nstate, 1> x;
-    Eigen::Matrix<f64, nact, 1> u;
+    Eigen::Matrix<f64, nstate, 1> y;
+    f64 ux;
+    f64 uy;
 
     // UI objects
-    i32 width;
-    i32 height;
-    f32 panel_width;
+    i32 width = WIDTH;
+    i32 height = HEIGHT;
+    f32 panel_width = PANEL_WIDTH;
     GLFWwindow *window;
 
     // mujoco sim interaction
@@ -65,7 +67,14 @@ typedef struct world {
     f64 lasty;
 
     // panel vars
+    f32 q_pos_penalty = 10.0f;
+    f32 q_angle_penalty = 1000.0f;
+    f32 q_vel_penalty = 1.0f;
+    f32 q_angvel_penalty = 100.0f;
+    bool q_updating;
+    bool q_updated;
     f32 pole_start_angle_x;
     f32 pole_start_angle_y;
     bool pole_start_angle_random;
+    bool focus_robot;
 } world;

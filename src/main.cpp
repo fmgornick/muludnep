@@ -11,6 +11,11 @@ main()
 
     while (!glfwWindowShouldClose(w.window))
     {
+        if (w.q_updated)
+        {
+            compute_lqr_gain(&w);
+            w.q_updated = false;
+        }
         control(&w);
         draw_sim(&w);
         draw_panel(&w);
