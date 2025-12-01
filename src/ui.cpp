@@ -7,11 +7,13 @@
 void init_ui(world *w);
 void destroy_ui(world *w);
 void reset_pole_orientation(world *w);
-void resize_callback(GLFWwindow *window, int width, int height);
-void key_callback(GLFWwindow *window, int key, int scancode, int act, int mods);
-void mouse_button_callback(GLFWwindow *window, int button, int act, int mods);
-void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+void resize_callback(GLFWwindow *window, i32 width, i32 height);
+void key_callback(GLFWwindow *window, i32 key, i32 scancode, i32 act, i32 mods);
+void mouse_button_callback(GLFWwindow *window, i32 button, i32 act, i32 mods);
+void cursor_pos_callback(GLFWwindow *window, f64 xpos, f64 ypos);
+void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset);
+void draw_sim(world *w);
+void draw_panel(world *w);
 
 void
 init_ui(world *w)
@@ -93,7 +95,7 @@ reset_pole_orientation(world *w)
 }
 
 void
-resize_callback(GLFWwindow *window, int width, int height)
+resize_callback(GLFWwindow *window, i32 width, i32 height)
 {
     world *w = (world *)glfwGetWindowUserPointer(window);
     w->width = width;
@@ -101,7 +103,7 @@ resize_callback(GLFWwindow *window, int width, int height)
 }
 
 void
-key_callback(GLFWwindow *window, int key, int scancode, int act, int mods)
+key_callback(GLFWwindow *window, i32 key, i32 scancode, i32 act, i32 mods)
 {
     world *w = (world *)glfwGetWindowUserPointer(window);
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, act, mods);
@@ -141,7 +143,7 @@ key_callback(GLFWwindow *window, int key, int scancode, int act, int mods)
 }
 
 void
-mouse_button_callback(GLFWwindow *window, int button, int act, int mods)
+mouse_button_callback(GLFWwindow *window, i32 button, i32 act, i32 mods)
 {
     world *w = (world *)glfwGetWindowUserPointer(window);
     if (ImGui::GetIO().MousePos.x - 5 < w->panel_width)
@@ -163,7 +165,7 @@ mouse_button_callback(GLFWwindow *window, int button, int act, int mods)
 }
 
 void
-cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
+cursor_pos_callback(GLFWwindow *window, f64 xpos, f64 ypos)
 {
     world *w = (world *)glfwGetWindowUserPointer(window);
     ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
@@ -174,13 +176,13 @@ cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
     }
 
     // compute mouse displacement, save
-    double dx = xpos - w->lastx;
-    double dy = ypos - w->lasty;
+    f64 dx = xpos - w->lastx;
+    f64 dy = ypos - w->lasty;
     w->lastx = xpos;
     w->lasty = ypos;
 
     // get current window size
-    int width, height;
+    i32 width, height;
     glfwGetWindowSize(window, &width, &height);
 
     // get shift key state
@@ -206,7 +208,7 @@ cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 }
 
 void
-scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset)
 {
     world *w = (world *)glfwGetWindowUserPointer(window);
     if (ImGui::GetIO().MousePos.x - 5 < w->panel_width)

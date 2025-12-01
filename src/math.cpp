@@ -63,12 +63,12 @@ linearize_system(world *w,                       //
     // store original sim qpos/qvel and ctrl to restore later
     Eigen::VectorXd qpos_orig(w->model->nq);
     Eigen::VectorXd qvel_orig(w->model->nv);
-    for (int i = 0; i < w->model->nq; ++i)
+    for (i32 i = 0; i < w->model->nq; ++i)
         qpos_orig(i) = w->data->qpos[i];
-    for (int i = 0; i < w->model->nv; ++i)
+    for (i32 i = 0; i < w->model->nv; ++i)
         qvel_orig(i) = w->data->qvel[i];
     Eigen::VectorXd ctrl_orig(1);
-    for (int i = 0; i < 1; ++i)
+    for (i32 i = 0; i < 1; ++i)
         ctrl_orig(i) = w->data->ctrl[i];
 
     // set base state & compute baseline xdot
@@ -80,7 +80,7 @@ linearize_system(world *w,                       //
     Eigen::Matrix<f64, 4, 1> B;
 
     // jacobian wrt x
-    for (int i = 0; i < 4; ++i)
+    for (i32 i = 0; i < 4; ++i)
     {
         Eigen::Matrix<f64, 4, 1> x_pert = x0;
         x_pert(i) += eps;
@@ -91,7 +91,7 @@ linearize_system(world *w,                       //
     }
 
     // jacobian wrt u
-    for (int j = 0; j < 1; ++j)
+    for (i32 j = 0; j < 1; ++j)
     {
         Eigen::VectorXd u_pert = u0;
         u_pert(j) += eps;
@@ -102,11 +102,11 @@ linearize_system(world *w,                       //
     }
 
     // restore sim qpos/qvel/ctrl
-    for (int i = 0; i < w->model->nq; i++)
+    for (i32 i = 0; i < w->model->nq; i++)
         w->data->qpos[i] = qpos_orig(i);
-    for (int i = 0; i < w->model->nv; i++)
+    for (i32 i = 0; i < w->model->nv; i++)
         w->data->qvel[i] = qvel_orig(i);
-    for (int i = 0; i < 1; i++)
+    for (i32 i = 0; i < 1; i++)
         w->data->ctrl[i] = ctrl_orig(i);
     mj_forward(w->model, w->data); // refresh
 
@@ -140,10 +140,10 @@ solve_continuous_are(const Eigen::Matrix<f64, 4, 4> &A, //
     auto eigvecs = es.eigenvectors(); // complex
 
     // Collect 4 eigenvectors whose eigenvalue has negative real part
-    const double neg_thresh = -1e-12; // small negative threshold
-    Eigen::MatrixXcd U(2 * 4, 4);     // complex container
-    int col = 0;
-    for (int i = 0; i < 2 * 4 && col < 4; ++i)
+    const f64 neg_thresh = -1e-12; // small negative threshold
+    Eigen::MatrixXcd U(2 * 4, 4);  // complex container
+    i32 col = 0;
+    for (i32 i = 0; i < 2 * 4 && col < 4; ++i)
     {
         if (eigvals(i).real() < neg_thresh)
         {
@@ -155,7 +155,7 @@ solve_continuous_are(const Eigen::Matrix<f64, 4, 4> &A, //
     {
         // fallback: try <= 0 with small tolerance (sometimes needed)
         col = 0;
-        for (int i = 0; i < 2 * 4 && col < 4; ++i)
+        for (i32 i = 0; i < 2 * 4 && col < 4; ++i)
         {
             if (eigvals(i).real() <= 1e-12)
             {
@@ -166,7 +166,7 @@ solve_continuous_are(const Eigen::Matrix<f64, 4, 4> &A, //
         if (col != 4) return false;
     }
 
-    // Partition U into U1 (top n rows) and U2 (bottom n rows)
+    // Partition U i32o U1 (top n rows) and U2 (bottom n rows)
     Eigen::MatrixXcd U1 = U.block(0, 0, 4, 4);
     Eigen::MatrixXcd U2 = U.block(4, 0, 4, 4);
 
@@ -178,8 +178,8 @@ solve_continuous_are(const Eigen::Matrix<f64, 4, 4> &A, //
 
     // P_out should be real symmetric; take real part and symmetrize
     Eigen::Matrix<f64, 4, 4> P_real;
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
+    for (i32 i = 0; i < 4; ++i)
+        for (i32 j = 0; j < 4; ++j)
             P_real(i, j) = std::real(P_c(i, j));
 
     P_out = (P_real + P_real.transpose()) * 0.5;
