@@ -47,7 +47,8 @@ init_ui(world *w)
 
     // mujoco data+model
     char error[1000];
-    w->model = mj_loadXML("scene.xml", NULL, error, 1000);
+    mjSpec *spec = mj_parseXMLString(scene, NULL, error, 1000);
+    w->model = mj_compile(spec, NULL);
     assert(w->model);
     w->data = mj_makeData(w->model);
     assert(w->data);

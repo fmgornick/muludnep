@@ -4,7 +4,6 @@
 #include <GLFW/glfw3.h>
 #include <mujoco/mujoco.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -78,3 +77,31 @@ typedef struct world {
     bool pole_start_angle_random;
     bool focus_robot;
 } world;
+
+const char scene[] = "<mujoco model=\"cartpole\">"
+                     "    <compiler angle=\"radian\"/>"
+                     "    <option timestep=\"0.01\"/>"
+                     "    <asset>"
+                     "        <texture type=\"skybox\" builtin=\"gradient\" rgb1=\"0.3 0.5 0.7\" rgb2=\"0 0 0\" width=\"512\" height=\"3072\"/>"
+                     "        <texture type=\"2d\" name=\"groundplane\" builtin=\"checker\" mark=\"edge\" rgb1=\"0.2 0.3 0.4\" rgb2=\"0.1 0.2 0.3\" "
+                     "markrgb=\"0.8 0.8 0.8\" width=\"300\" height=\"300\"/>"
+                     "        <material name=\"groundplane\" texture=\"groundplane\" texuniform=\"true\" texrepeat=\"5 5\" reflectance=\"0.2\"/>"
+                     "    </asset>"
+                     "    <worldbody>"
+                     "        <geom name=\"ground\" size=\"0 0 0.05\" type=\"plane\" material=\"groundplane\"/>"
+                     "        <body name=\"platform\" pos=\"0 0 0.1\">"
+                     "            <joint name=\"platform_x\" type=\"slide\" axis=\"1 0 0\"/>"
+                     "            <joint name=\"platform_y\" type=\"slide\" axis=\"0 1 0\"/>"
+                     "            <geom name=\"platform_geom\" type=\"cylinder\" size=\"0.3 0.1\" rgba=\"0.5 0.6 0.8 1\"/>"
+                     "            <body name=\"pole\" pos=\"0 0 0.1\">"
+                     "                <joint name=\"hinge_x\" type=\"hinge\" axis=\"1 0 0\"/>"
+                     "                <joint name=\"hinge_y\" type=\"hinge\" axis=\"0 1 0\"/>"
+                     "                <geom name=\"pole_geom\" type=\"capsule\" fromto=\"0 0 0 0 0 1\" size=\"0.05\" rgba=\"0.8 0.6 0.5 1\"/>"
+                     "            </body>"
+                     "        </body>"
+                     "        </worldbody>"
+                     "    <actuator>"
+                     "        <motor joint=\"platform_x\" ctrlrange=\"-10000 10000\"/>"
+                     "        <motor joint=\"platform_y\" ctrlrange=\"-10000 10000\"/>"
+                     "    </actuator>"
+                     "</mujoco>";
