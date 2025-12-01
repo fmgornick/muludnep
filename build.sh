@@ -14,11 +14,12 @@ if [ "$OS" = "Darwin" ] && [ "$ARCH" = "arm64" ]; then
         -framework IOKit \
         -framework OpenGL
 elif [ "$OS" = "Linux" ] && [ "$ARCH" = "x86_64" ]; then
-    clang++ -std=c++17 -O3 -Wall -flto \
+    g++ -std=c++17 -O3 -Wall \
         -Iinc \
         src/main.cpp -o muludnep \
         lib_x64_linux/* \
-        -lGL
+        -lGL \
+        -Wl,-rpath,./lib_x64_linux
 else
     echo "unsupported platform: $OS ($ARCH)"
     exit 1
