@@ -166,7 +166,7 @@ solve_continuous_are(const Eigen::Matrix<f64, 4, 4> &A, //
         if (col != 4) return false;
     }
 
-    // Partition U i32o U1 (top n rows) and U2 (bottom n rows)
+    // Partition U into U1 (top n rows) and U2 (bottom n rows)
     Eigen::MatrixXcd U1 = U.block(0, 0, 4, 4);
     Eigen::MatrixXcd U2 = U.block(4, 0, 4, 4);
 

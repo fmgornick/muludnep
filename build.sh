@@ -12,7 +12,8 @@ if [ "$OS" = "Darwin" ] && [ "$ARCH" = "arm64" ]; then
         lib_arm64_darwin/* \
         -framework Cocoa \
         -framework IOKit \
-        -framework OpenGL
+        -framework OpenGL \
+        -Wl,-rpath,./lib_arm64_darwin
 elif [ "$OS" = "Linux" ] && [ "$ARCH" = "x86_64" ]; then
     g++ -std=c++17 -O3 -Wall \
         -Iinc \
