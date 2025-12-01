@@ -1,14 +1,12 @@
 #!/bin/sh
 
 cd "$(dirname "$0")"
-dir=$PWD
 
 clang++ -std=c++17 -O3 -Wall \
-    -F$dir/libs/mujoco \
-    -I$dir/inc \
-    -L$dir/libs/imgui \
-    -Wl,-rpath,@executable_path/libs/imgui \
+    -Flibs/mujoco \
+    -Iinc \
+    -Llib_darwin \
     -Wl,-rpath,$dir/libs/mujoco \
     src/main.cpp -o muludnep \
-    -framework mujoco -framework OpenGL \
-    -lglfw -limgui
+    -lglfw -limgui \
+    -framework mujoco -framework OpenGL
