@@ -80,7 +80,7 @@ reset_pole_orientation(world *w)
 {
     if (w->pole_start_angle_random)
     {
-        f64 max_angle = mjPI / 10;
+        f64 max_angle = mjPI / 6;
         w->data->qpos[w->hinge_x_qpos_id] = ((f64)rand() / RAND_MAX * 2.0 - 1.0) * max_angle;
         w->data->qpos[w->hinge_y_qpos_id] = ((f64)rand() / RAND_MAX * 2.0 - 1.0) * max_angle;
     }
@@ -327,8 +327,8 @@ draw_panel(world *w)
 
         if (!w->pole_start_angle_random)
         {
-            ImGui::SliderFloat("Pole start angle X", &w->pole_start_angle_x, -25.0f, 25.0f, "%.2f deg");
-            ImGui::SliderFloat("Pole start angle Y", &w->pole_start_angle_y, -25.0f, 25.0f, "%.2f deg");
+            ImGui::SliderFloat("Pole start angle X", &w->pole_start_angle_x, -30.0f, 30.0f, "%.2f deg");
+            ImGui::SliderFloat("Pole start angle Y", &w->pole_start_angle_y, -30.0f, 30.0f, "%.2f deg");
             if (ImGui::Button("Apply Start Angle"))
             {
                 reset_pole_orientation(w);
